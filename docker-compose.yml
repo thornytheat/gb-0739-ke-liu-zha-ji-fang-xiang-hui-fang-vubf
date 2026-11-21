@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    ports:
+      - "18428:18428"
+    environment:
+      GATE_DB_PATH: /var/lib/gate/replay.sqlite3
+    volumes:
+      - replay-data:/var/lib/gate
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:18428/healthz', timeout=2)"]
+      interval: 8s
+      timeout: 3s
+      retries: 4
+volumes:
+  replay-data:

@@ -1,0 +1,29 @@
+:root {
+  color-scheme: dark;
+  --bg: #101329;
+  --rail: #141832;
+  --panel: #181d39;
+  --surface: #1e2445;
+  --surface-2: #242b50;
+  --ink: #edf1ff;
+  --muted: #aebbdd;
+  --subtle: #97a8ce;
+  --line: #343e64;
+  --line-2: #4b5a82;
+  --accent: #85adff;
+  --accent-ink: #0e1935;
+  --ok: #87ddaf;
+  --warning: #ffd28e;
+  --danger: #ffacbf;
+  --beam-a: #8eb8ff;
+  --beam-b: #b4ebea;
+  --anchor: #d5b0fa;
+  --font-ui: "PingFang SC", "Noto Sans CJK SC", "Microsoft Yahei", sans-serif;
+  --font-num: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --radius: 4px;
+  --gap: 11px;
+  --pad: 12px;
+  --toolbar: 54px;
+  --step: 32px;
+  --speed: 100ms;
+}

@@ -1,0 +1,28 @@
+<section class="panel waterfall" aria-labelledby="tracks-title">
+  <div class="section-head"><h2 id="tracks-title">双束脉冲瀑布</h2><div class="legend"><span><b class="beam-a">A</b> 外侧束</span><span><b class="beam-b">B</b> 内侧束</span><span><i class="anchor-icon"></i> 换乘锚点</span></div><span class="scope">近 {{ tracks | length }} 组 · 横向 0–900 ms</span></div>
+  <div class="tracks-scroll" tabindex="0" aria-label="双轨回放，按校正时刻倒序选择证据">
+    <div class="track-axis"><span>校正时刻 / 闸机</span><span>进站轨 <b>A→B</b></span><span>出站轨 <b>B→A</b></span><span>判定</span></div>
+    {% for row in tracks %}
+    <div class="track-row" data-event="{{ row.encounter }}">
+      <div class="track-meta"><time datetime="{{ row.stamp }}" title="{{ row.stamp }}">{{ row.stamp[8:10] }}日 {{ row.stamp[11:23] }}</time><span>{{ row.station }} / {{ row.gate }}</span></div>
+      {% for direction in ['entry', 'exit'] %}
+      <div class="track-cell lane-{{ direction }}">
+        {% if row.direction == direction %}
+        <button class="pulse-pattern" type="button" data-encounter="{{ row.encounter }}" aria-label="查看{{ row.encounter }}配对证据" style="--span:{{ row.width }}%">
+          <span class="track-label">{{ row.duration_ms }} ms</span>
+          {% for point in row.markers %}<b class="beam-{{ point.beam | lower }} pulse-pin" style="--position:{{ point.x }}%" title="{{ point.pulse }} · 触发源行 {{ point.line }}">{{ point.beam }}</b>{% endfor %}
+        </button>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <div class="track-state">
+        {% if row.transfer %}
+        <button type="button" class="jump transfer-mark" data-anchor="{{ row.encounter }}" title="出站锚点 {{ row.transfer.anchor }}"><i class="anchor-icon" aria-hidden="true"></i> 换乘锚点</button>
+        {% else %}
+        <button type="button" class="jump state-{{ row.direction }}" data-encounter="{{ row.encounter }}">{{ row.label }}{% if row.direction in ['return','ambiguous'] %} · {{ row.pattern if not row.more else (row.pulses | length | string) ~ ' 束' }}{% endif %}</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>

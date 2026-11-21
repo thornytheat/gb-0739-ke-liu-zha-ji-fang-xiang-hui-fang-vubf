@@ -1,0 +1,32 @@
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 13px; color: var(--muted); font-size: 11px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.beam-a, .beam-b { color: var(--accent-ink); background: var(--beam-a); border-radius: 2px; display: inline-grid; place-items: center; width: 14px; height: 14px; font: bold 10px var(--font-num); }
+.beam-b { background: var(--beam-b); }
+.anchor-icon { border: 1.5px solid currentColor; width: 8px; height: 8px; display: inline-block; transform: rotate(45deg); color: var(--anchor); }
+.tracks-scroll { max-height: 358px; overflow: auto; }
+.track-axis, .track-row { display: grid; grid-template-columns: 174px repeat(2, minmax(155px, 1fr)) 146px; min-width: 650px; }
+.track-axis { position: sticky; top: 0; z-index: 2; background: var(--surface); font-size: 11px; color: var(--muted); }
+.track-axis > span { border-bottom: 1px solid var(--line); padding: 6px 10px; }
+.track-axis > span b { margin-left: 6px; color: var(--beam-a); font: 11px var(--font-num); }
+.track-axis > span:nth-child(3) b { color: var(--beam-b); }
+.track-row { min-height: var(--step); border-bottom: 1px solid var(--line); }
+.track-row:hover, .track-row.selected { background: var(--surface-2); }
+.track-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px; padding: 4px 9px; font-size: 10.5px; color: var(--ink); }
+.track-meta span { color: var(--muted); }
+.track-cell { position: relative; padding: 0 13px; border-inline-start: 1px solid var(--line); display: flex; align-items: center; }
+.track-cell::before { content: ''; position: absolute; inset: 0 16px; background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 25%); opacity: .7; pointer-events: none; }
+.pulse-pattern { position: relative; margin: 0 3px; height: 24px; width: calc(100% - 6px); padding: 0; border: 0; background: transparent; cursor: pointer; text-align: left; }
+.pulse-pattern::before { content: ''; position: absolute; top: 11px; left: 0; width: var(--span); height: 2px; background: var(--beam-a); }
+.lane-exit .pulse-pattern::before { background: var(--beam-b); }
+.pulse-pin { position: absolute; top: 5px; left: var(--position); transform: translateX(-50%); }
+.track-label { position: absolute; inset: 4px 0 auto auto; font: 10px var(--font-num); color: var(--muted); background: var(--panel); padding: 2px 3px; }
+.pulse-pattern:hover .track-label { color: var(--ink); }
+.track-state { display: flex; align-items: center; padding: 0 6px; border-inline-start: 1px solid var(--line); min-width: 0; }
+.jump { background: none; border: 0; color: var(--muted); cursor: pointer; font: inherit; font-size: 11px; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%; }
+.jump:hover { text-decoration: underline; text-underline-offset: 3px; }
+.state-entry { color: var(--beam-a); }
+.state-exit { color: var(--beam-b); }
+.state-return { color: var(--warning); }
+.state-ambiguous { color: var(--danger); }
+.transfer-mark { display: inline-flex; gap: 7px; align-items: center; color: var(--anchor); }
+.evidence #module-title { border-left: 1px solid var(--line-2); padding-left: 9px; }

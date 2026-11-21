@@ -1,0 +1,5 @@
+from_station,to_station,min_seconds,max_seconds
+NTH,STH,60,720
+WST,STH,90,600
+EST,EST,60,180
+EST,NTH,300,60

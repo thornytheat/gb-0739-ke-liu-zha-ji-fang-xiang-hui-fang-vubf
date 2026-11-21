@@ -1,0 +1,11 @@
+<section class="panel evidence" id="proof" aria-labelledby="evidence-title">
+  <div class="section-head"><h2 id="evidence-title">脉冲证据</h2><span id="module-title">方向与折返</span><a class="scope" href="#report" data-module="report" data-view="isolated">隔离区 {{ data.isolated | length }} 行</a></div>
+  <form id="filters" class="filters">
+    <label class="sr" for="view">证据视图</label><select id="view"></select>
+    <label class="sr" for="station">站点</label><select id="station"><option value="">所有站点</option>{% for station in stations %}<option>{{ station }}</option>{% endfor %}</select>
+    <label class="sr" for="search">搜脉冲、票号或原因码</label><input id="search" type="search" placeholder="搜脉冲、票号或原因码" maxlength="64">
+    <button class="button" type="submit">筛选</button><output id="evidence-feedback" aria-live="polite"></output>
+  </form>
+  <div class="evidence-scroll" tabindex="0" aria-label="记录明细"><table class="result"><thead id="cols"></thead><tbody id="rows"></tbody></table><noscript>启用 JavaScript 查看证据。</noscript></div>
+  <div class="pages"><button class="button plain" id="previous" type="button" disabled>上一页</button><button class="button plain" id="more" type="button" disabled>下一页</button></div>
+</section>

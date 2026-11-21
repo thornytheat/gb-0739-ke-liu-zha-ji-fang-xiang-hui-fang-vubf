@@ -1,0 +1,9 @@
+<dialog id="upload" aria-labelledby="upload-title">
+  <div class="section-head"><h2 id="upload-title">导入回放文件</h2><button class="button plain" id="import-close" type="button">关闭</button></div>
+  <form id="upload-form" enctype="multipart/form-data">
+    <label for="files">四份 CSV 文件</label><input id="files" name="files" type="file" multiple accept=".csv,text/csv" required>
+    <div class="file-list"><code>pulses.csv</code><code>offsets.csv</code><code>passes.csv</code><code>links.csv</code></div>
+    <output id="upload-feedback" aria-live="polite"></output>
+    <button class="button primary" type="submit">计算并发布</button>
+  </form>
+</dialog>

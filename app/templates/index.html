@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>客流闸机方向回放</title>
+  <link rel="stylesheet" href="/static/theme.css">
+  <link rel="stylesheet" href="/static/frame.css">
+  <link rel="stylesheet" href="/static/tracks.css">
+  <script type="module" src="/static/replay.js"></script>
+</head>
+<body data-run="{{ manifest.run_id }}">
+  <div class="console">
+    <aside class="rail">
+      <a class="rail-brand" href="/"><i class="gate-mark" aria-hidden="true"></i><span>站口回放</span></a>
+      <nav aria-label="业务模块">
+        {% for key, label in modules %}
+        <a href="#{{ key }}" data-module="{{ key }}" {% if key == 'direction' %}aria-current="location"{% endif %}>{{ label }}</a>
+        {% endfor %}
+      </nav>
+      <div class="rail-status"><span>束位</span><strong><b class="beam-a">A</b><b class="beam-b">B</b></strong><span>校时时区</span><code>UTC+08:00</code></div>
+    </aside>
+    <div class="workspace">
+      <header class="toolbar">
+        <div class="title"><h1>客流闸机方向回放</h1><span class="signal {{ 'idle' if preview else 'pass' }}">{{ '样例预览' if preview else '已发布' }}</span></div>
+        <div class="commands">
+          <button class="button plain" id="import-open" type="button">导入 CSV</button>
+          {% if preview %}
+          <button class="button primary" data-publish="/api/runs/sample" type="button">运行回放</button>
+          {% else %}
+          <button class="button" data-publish="/api/runs/{{ manifest.run_id }}/rerun" type="button">重跑</button>
+          <a class="button primary" href="/api/report/{{ manifest.run_id }}/export" download>下载班报凭证</a>
+          {% endif %}
+        </div>
+      </header>
+      <main>
+        <div class="runline"><span>批次 <code>{{ '样例' if preview else manifest.run_id }}</code></span><span>生成 <time class="local-time" datetime="{{ manifest.generated_at }}">{{ manifest.generated_at }}</time></span><output id="run-feedback" aria-live="polite">{{ notice }}</output></div>
+        <div class="kpis" aria-label="客流统计">
+          {% for key, label in [('entry', '有效进站'), ('exit', '有效出站'), ('transfer_in', '跨站换乘'), ('unique_entries', '去重进站')] %}
+          <div class="kpi {{ 'focus' if key == 'unique_entries' else '' }}"><span>{{ label }}</span><strong id="metric-{{ key }}">{{ totals[key] }}<small>人次</small></strong></div>
+          {% endfor %}
+          <div class="kpi"><span>脉冲差异</span><strong id="metric-gap">{{ totals.pulse_difference }}<small>次</small></strong></div>
+        </div>
+        {% include 'waterfall.html' %}
+        {% include 'evidence.html' %}
+      </main>
+      <footer class="statusbar"><span class="signal pass">客流勾稽通过</span><span>隔离 {{ data.isolated | length }} 行</span><span>折返 {{ totals['return'] }} · 歧义 {{ totals.ambiguous }} · 孤脉冲 {{ totals.orphan_pulses }}</span><span class="footer-end"><code>{{ manifest.version }}</code> <a href="/docs">API</a></span></footer>
+    </div>
+  </div>
+  {% include 'upload.jinja' %}
+</body>
+</html>
