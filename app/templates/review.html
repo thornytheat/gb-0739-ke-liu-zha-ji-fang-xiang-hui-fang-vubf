@@ -1,0 +1,117 @@
+<section class="panel review-panel" id="review" aria-labelledby="review-title" hidden>
+  <div class="section-head">
+    <h2 id="review-title">票号复核 · 同票同时段只认一次换乘</h2>
+    <span class="scope">按现场实际通过的人交班 · 复核失败自动恢复旧版班报</span>
+  </div>
+
+  <div class="review-kpis">
+    <div><span>重算前去重进站</span><strong>{{ base_totals.unique_entries }}</strong><small>人次</small></div>
+    <div><span>重算后去重进站</span><strong>{{ totals.unique_entries }}</strong><small>人次</small></div>
+    <div><span>重算前换乘进 / 出</span><strong>{{ base_totals.transfer_in }} / {{ base_totals.transfer_out }}</strong></div>
+    <div><span>重算后换乘进 / 出</span><strong>{{ totals.transfer_in }} / {{ totals.transfer_out }}</strong></div>
+    <div><span>换乘净数（全批恒为 0）</span><strong>{{ totals.transfer_net }}</strong></div>
+  </div>
+
+  {% if review_info %}
+  <div class="review-banner pass">
+    已生效复核：票号 <code>{{ review_info.ticket }}</code> 保留锚点 <code>{{ review_info.kept_anchor }}</code>
+    的一段换乘，其余同票段按独立进出交班（复核批次 <code>{{ review_info.revision_id }}</code>）。
+    说明：{{ review_info.reason }}
+  </div>
+  {% endif %}
+
+  <div class="review-block">
+    <h3>按票号的行程复核结论</h3>
+    {% if not review_groups %}
+    <p class="review-empty">本批没有同一张票被认成两段及以上换乘的情形，无需复核。</p>
+    {% endif %}
+    {% for group in review_groups %}
+    <table class="result review-table" data-ticket="{{ group.ticket }}">
+      <caption>票号 <code>{{ group.ticket }}</code> · 同票 {{ group.legs | length }} 段系统换乘，仅保留 1 段</caption>
+      <thead><tr><th>行程段（进站证据）</th><th>出站锚点</th><th>出站点 → 进站点</th><th>出站时刻</th><th>进站时刻</th><th>时距 ms</th><th>复核结论</th></tr></thead>
+      <tbody>
+        {% for leg in group.legs %}
+        <tr>
+          <td><code>{{ leg.encounter }}</code><span class="src">源行 {{ leg.entry_line }}</span></td>
+          <td><code>{{ leg.anchor }}</code><span class="src">源行 {{ leg.anchor_line }}</span></td>
+          <td>{{ leg.from_station }} → {{ leg.station }}</td>
+          <td class="num" data-ms>{{ leg.anchor_ms }}</td>
+          <td class="num" data-ms>{{ leg.at_ms }}</td>
+          <td class="num">{{ leg.gap_ms }}</td>
+          <td>
+            {% if leg.review_status == 'kept' %}<b class="tag kept">认换乘（保留段）</b>
+            {% elif leg.review_status %}<b class="tag down">独立进出交班</b>
+            {% else %}<span class="tag pending">待复核</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if not preview and not review_info %}
+    <form class="review-form" data-run="{{ manifest.run_id }}">
+      <input type="hidden" name="ticket" value="{{ group.ticket }}">
+      <label>保留换乘的出站锚点
+        <select name="kept_anchor">
+          {% for leg in group.legs %}<option value="{{ leg.anchor }}">{{ leg.anchor }}（{{ leg.from_station }} → {{ leg.station }}，{{ leg.gap_ms }} ms）</option>{% endfor %}
+        </select>
+      </label>
+      <label>复核时段起（毫秒）<input name="period_start_ms" type="number" value="{{ group.period_start_ms }}" required></label>
+      <label>复核时段止（毫秒）<input name="period_end_ms" type="number" value="{{ group.period_end_ms }}" required></label>
+      <label class="reason-cell">同票说明
+        <input name="reason" maxlength="200" placeholder="例：早高峰两名乘客借用同一张票，按实际通过两人交班" required>
+      </label>
+      <button class="button primary" type="submit">补录说明并重算</button>
+      <output class="review-feedback" aria-live="polite"></output>
+    </form>
+    {% elif preview %}
+    <p class="review-empty">样例预览不接受复核，请先「运行回放」发布批次。</p>
+    {% else %}
+    <p class="review-empty">该票复核已确认，重跑复用该批次且不会重复调整；如需改判请在新批次重新上传。</p>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="review-block">
+    <h3>重算前后各班人数与换乘净数</h3>
+    {% if shift_comparison %}
+    <table class="result">
+      <thead><tr><th>班次</th><th>站点</th><th>指标</th><th>重算前</th><th>重算后</th><th>差额</th></tr></thead>
+      <tbody>
+        {% for row in shift_comparison if row.changed %}
+        {% for label, key in [('进站', 'entry'), ('出站', 'exit'), ('换乘进', 'transfer_in'), ('换乘出', 'transfer_out'), ('换乘净数', 'transfer_net'), ('去重进站', 'unique_entries'), ('进出净数', 'physical_net'), ('扣换乘净数', 'nontransfer_net')] %}
+        <tr class="{{ 'changed-row' if row[key].delta else '' }}">
+          {% if loop.first %}<td rowspan="8">{{ row.shift }}</td><td rowspan="8">{{ row.station }}</td>{% endif %}
+          <td>{{ label }}</td><td class="num">{{ row[key].before }}</td><td class="num">{{ row[key].after }}</td>
+          <td class="num delta {{ 'neg' if row[key].delta < 0 else 'pos' if row[key].delta > 0 else '' }}">{{ '%+d' | format(row[key].delta) }}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="review-empty">尚未确认复核，当前班报即重算前版本。</p>
+    {% endif %}
+  </div>
+
+  <div class="review-block">
+    <h3>同票说明记录（不丢失）</h3>
+    {% if review_notes %}
+    <table class="result">
+      <thead><tr><th>记录号</th><th>票号</th><th>保留锚点</th><th>时段起</th><th>时段止</th><th>说明</th><th>状态</th><th>失败原因</th><th>复核批次</th><th>登记时刻</th></tr></thead>
+      <tbody>
+        {% for note in review_notes %}
+        <tr>
+          <td><code>{{ note.note_id }}</code></td><td><code>{{ note.ticket }}</code></td><td><code>{{ note.kept_anchor }}</code></td>
+          <td class="num" data-ms>{{ note.period_start_ms }}</td><td class="num" data-ms>{{ note.period_end_ms }}</td>
+          <td><span title="{{ note.reason }}">{{ note.reason }}</span></td>
+          <td><b class="tag {{ note.status }}">{{ {'recorded': '已登记', 'confirmed': '已确认', 'rejected': '已驳回'}.get(note.status, note.status) }}</b></td>
+          <td>{{ note.reject_reason or '—' }}</td><td><code>{{ note.revision_id or '—' }}</code></td><td class="num">{{ note.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="review-empty">暂无同票说明记录。</p>
+    {% endif %}
+  </div>
+</section>

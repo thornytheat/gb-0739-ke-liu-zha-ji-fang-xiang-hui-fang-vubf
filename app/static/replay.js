@@ -10,6 +10,7 @@ const previous = $('#previous');
 const more = $('#more');
 const run = document.body.dataset.run;
 const limit = 18;
+const reviewPanel = $('#review');
 let active = 'direction';
 let offset = 0;
 let currentRequest;
@@ -105,6 +106,18 @@ async function load() {
 
 function switchSection(module, initialView = 'main', term = '') {
   active = module;
+  const isReview = module === 'review';
+  if (reviewPanel) reviewPanel.hidden = !isReview;
+  $('#proof').hidden = isReview;
+  if (isReview) {
+    document.querySelectorAll('nav [data-module]').forEach(link => {
+      link.classList.toggle('selected', false);
+      if (link.dataset.module === module) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+    document.querySelectorAll('[data-event]').forEach(row => row.classList.toggle('selected', row.dataset.event === term));
+    return;
+  }
   view.replaceChildren(...Object.entries(sections[module]).map(([key, [text]]) => new Option(text, key)));
   view.value = initialView;
   search.value = term;
@@ -143,7 +156,8 @@ $('#filters').addEventListener('submit', event => { event.preventDefault(); offs
 previous.onclick = () => { offset = Math.max(offset - limit, 0); load(); };
 more.onclick = () => { offset += limit; load(); };
 const initial = location.hash.slice(1);
-switchSection(Object.hasOwn(sections, initial) ? initial : 'direction');
+const startModule = Object.hasOwn(sections, initial) || initial === 'review' ? initial : 'direction';
+switchSection(startModule);
 const generated = $('.local-time');
 generated.textContent = times.format(new Date(generated.dateTime));
 publishControls();

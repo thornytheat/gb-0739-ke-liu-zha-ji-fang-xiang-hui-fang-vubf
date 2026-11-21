@@ -1,0 +1,29 @@
+.review-panel { padding-bottom: 12px; }
+.review-panel[hidden] { display: none; }
+.review-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.review-kpis div { display: grid; grid-template-columns: 1fr auto auto; gap: 4px; align-items: baseline; padding: 8px 12px; border-left: 1px solid var(--line); }
+.review-kpis div:first-child { border-left: 0; }
+.review-kpis span { color: var(--muted); font-size: 11px; grid-column: 1 / -1; }
+.review-kpis strong { font-family: var(--font-num); font-size: 18px; }
+.review-kpis small { color: var(--muted); font-size: 10px; }
+.review-banner { margin: 10px var(--pad); padding: 8px 10px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--line); font-size: 12px; }
+.review-banner.pass { border-left: 3px solid var(--ok); }
+.review-block { padding: 10px var(--pad) 4px; }
+.review-block h3 { font-size: 13px; margin-bottom: 6px; }
+.review-block + .review-block { border-top: 1px solid var(--line); }
+.review-table caption { text-align: left; color: var(--muted); padding: 4px 0; font-size: 12px; }
+.review-table .src { display: block; color: var(--muted); font-size: 10px; }
+.tag { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.tag.kept, .tag.confirmed { background: color-mix(in srgb, var(--ok) 22%, transparent); color: var(--ok); }
+.tag.down, .tag.rejected { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
+.tag.pending, .tag.recorded { background: var(--surface-2); color: var(--muted); }
+.review-form { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: end; padding: 8px 0 4px; }
+.review-form label { display: grid; gap: 3px; font-size: 11px; color: var(--muted); }
+.review-form .reason-cell { flex: 1 1 240px; }
+.review-form input, .review-form select { min-height: 28px; border-radius: var(--radius); border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); font: inherit; padding: 3px 8px; min-width: 120px; }
+.review-form .reason-cell input { min-width: 220px; width: 100%; }
+.review-feedback { color: var(--danger); font-size: 11px; flex-basis: 100%; }
+.review-empty { color: var(--muted); font-size: 12px; padding: 4px 0 8px; }
+tr.changed-row td.delta.pos { color: var(--ok); }
+tr.changed-row td.delta.neg { color: var(--danger); }
+@media (max-width: 720px) { .review-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

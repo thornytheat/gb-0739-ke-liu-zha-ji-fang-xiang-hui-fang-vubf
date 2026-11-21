@@ -38,6 +38,7 @@ def calculate(run_id, files):
     issues.sort(key=lambda item: (item['source'], item['line'], item['stage']))
     return {'manifest': run_manifest(run_id, inputs, round((perf_counter() - started) * 1000)),
             'intake': intake_rows, 'duplicates': dup, 'versions': versions, 'overlaps': overlaps,
-            'aligned': aligned, 'pairs': paired, 'direction': direction, 'passes': passes, 'links': links,
+            'aligned': aligned, 'unavailable': unavailable, 'pairs': paired, 'direction': direction,
+            'passes': passes, 'links': links,
             'transfers': transfers, 'balance': balance, 'isolated': issues,
             'reason_counts': dict(sorted(Counter(row['code'] for row in issues).items()))}

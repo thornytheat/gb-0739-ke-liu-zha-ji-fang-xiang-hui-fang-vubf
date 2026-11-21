@@ -6,7 +6,7 @@ PULSE = ('pulse', 'station', 'gate', 'beam', 'ticket', 'device_ms')
 MOVEMENT = ('encounter', 'station', 'gate', 'ticket', 'pattern', 'start_ms', 'end_ms', 'pulses', 'code')
 
 
-def build(snapshot, sources):
+def build(snapshot, sources, notes=None):
     balance = snapshot['balance']
     columns = {
         'aligned.csv': (snapshot['aligned'], (*PULSE, 'corrected_ms', 'offset_ms', 'offset_line', *ORIGIN)),
@@ -14,8 +14,9 @@ def build(snapshot, sources):
         'pairs.csv': (snapshot['pairs'], ('kind', *MOVEMENT)),
         'direction.csv': (snapshot['direction'], ('direction', 'duration_ms', *MOVEMENT)),
         'transfers.csv': (snapshot['transfers'], ('encounter', 'station', 'gate', 'ticket', 'at_ms', 'unique_entry',
-            'is_transfer', 'code', 'entry_line', 'anchor', 'from_station', 'anchor_ms', 'anchor_line', 'gap_ms',
-            'link_line', 'pass_line')),
+            'is_transfer', 'code', 'review_status', 'entry_line', 'anchor', 'from_station', 'anchor_ms', 'anchor_line',
+            'gap_ms', 'link_line', 'pass_line', 'original_anchor', 'original_from_station', 'original_anchor_ms',
+            'original_gap_ms')),
         'shifts.csv': (balance['shifts'], ('shift', 'station', 'trackable', 'repeats', 'evidence_pulses', 'orphan_pulses',
             'entry', 'exit', 'return', 'ambiguous', 'orphan', 'unique_entries', 'transfer_in', 'transfer_out',
             'pulse_difference', 'entry_difference', 'physical_net', 'transfer_net', 'nontransfer_net')),
@@ -27,6 +28,19 @@ def build(snapshot, sources):
     members = {f'input/{name}': raw for name, raw in sources.items()}
     for name, (entries, fields) in columns.items():
         members[f'evidence/{name}'] = tabular(entries, fields)
+    review = snapshot.get('review')
+    if review:
+        members['evidence/review-notes.csv'] = tabular(notes or [], (
+            'note_id', 'ticket', 'kept_anchor', 'period_start_ms', 'period_end_ms', 'reason', 'status',
+            'reject_reason', 'revision_id', 'created_at'))
+        flat = []
+        for row in review['shift_diff']:
+            for metric in ('entry', 'exit', 'transfer_in', 'transfer_out', 'transfer_net',
+                           'unique_entries', 'physical_net', 'nontransfer_net'):
+                change = row[metric]
+                flat.append({'shift': row['shift'], 'station': row['station'], 'metric': metric,
+                             'before': change['before'], 'after': change['after'], 'delta': change['delta']})
+        members['evidence/shift-review-diff.csv'] = tabular(flat, ('shift', 'station', 'metric', 'before', 'after', 'delta'))
     manifest = {**snapshot['manifest'], 'checks': balance['checks'], 'totals': balance['totals'],
                 'reason_counts': snapshot['reason_counts'], 'member_sha256': {name: sha(raw) for name, raw in members.items()}}
     members['manifest.json'] = json_bytes(manifest)

@@ -14,6 +14,7 @@ from app.modules.m4_direction import handler as direction
 from app.modules.m5_transfer import handler as transfer
 from app.modules.m6_balance import handler as balance
 from app.modules.m7_report import handler as report
+from app.modules.m8_review import handler as review
 from app.pipeline import calculate
 from app.problems import MESSAGES, Problem
 from app.settings import PREVIEW, ROOT
@@ -29,7 +30,7 @@ def create_app(path=None):
 
     app = FastAPI(title='客流闸机方向回放', lifespan=lifespan)
     app.mount('/static', StaticFiles(directory=ROOT / 'app' / 'static'), name='static')
-    for module in (web, runs, intake, clock, pairing, direction, transfer, balance, report):
+    for module in (web, runs, intake, clock, pairing, direction, transfer, balance, review, report):
         app.include_router(module.router)
 
     @app.exception_handler(Problem)

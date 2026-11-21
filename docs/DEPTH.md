@@ -11,6 +11,7 @@
 | M3 双束配对 | 对照预期顺序、尾随与孤脉冲 | `GET /api/pairing/{run_id}` | `app/modules/m3_pairing/stream.py` `app/modules/m3_pairing/service.py` | `tests/test_pairing.py` |
 | M4 方向与折返 | 从方向轨定位往返、等时及证据 | `GET /api/direction/{run_id}` | `app/modules/m4_direction/service.py` | `tests/test_direction.py` |
 | M5 换乘去重 | 复核票有效期、通道和出站锚点 | `GET /api/transfer/{run_id}` | `app/modules/m5_transfer/contracts.py` `app/modules/m5_transfer/service.py` | `tests/test_transfer.py` |
+| M8 票号复核 | 同票多段换乘只保留一段，重算班报并留同票说明 | `GET /api/review/{run_id}` `POST /api/review/{run_id}/notes` | `app/modules/m8_review/service.py` `app/archive.py` | `tests/test_review.py` |
 | M6 客流勾稽 | 核对逐站逐班源行、触发与客流 | `GET /api/balance/{run_id}` | `app/modules/m6_balance/shifts.py` `app/modules/m6_balance/service.py` | `tests/test_balance.py` |
 | M7 班报复算 | 核对输入哈希及原始依据，下载班报 | `GET /api/report/{run_id}`、`GET /api/report/{run_id}/export` | `app/modules/m7_report/bundle.py` `app/modules/m7_report/serializers.py` | `tests/test_report.py` |
 
@@ -31,6 +32,7 @@
 | TRAP-19 | pulses.csv 两束等时、匿名短往返 | 用文件顺序强行算方向 | 等时优先切段，匿名往返保留歧义 | `app/modules/m3_pairing/service.py` `app/modules/m4_direction/service.py` | `tests/test_direction.py::test_anonymous_return_and_simultaneous_frame_never_invent_direction` |
 | TRAP-23 | offsets.csv 两个相邻版本在午夜切换 | 双命中或用错校时偏差 | 起点含、终点不含 | `app/modules/m2_clock/index.py` | `tests/test_clock.py::test_end_of_old_clock_interval_is_start_of_new_clock_version` |
 | TRAP-25 | offsets.csv 西站两段版本交叠 | 任取第一个导致方向漂移 | 保留重叠区间及版本行，隔离命中的触发 | `app/modules/m2_clock/index.py` `app/modules/m2_clock/service.py` | `tests/test_clock.py::test_intersecting_clock_versions_quarantine_only_overlap` |
+| TRAP-26 | 早高峰两名乘客借用同一张票，系统把两段都认成换乘 | 班报换乘进、换乘出各多算一次，重跑再次重复调整 | 同票同时段只保留一段换乘，其余段降级为独立进出；说明先落库、确认事务可回滚 | `app/modules/m8_review/service.py` `app/archive.py` | `tests/test_review.py` |
 
 ## 勾稽与回放边界
 

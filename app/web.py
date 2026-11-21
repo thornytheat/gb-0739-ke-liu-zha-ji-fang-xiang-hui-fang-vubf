@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.fields import utc_date
+from app.modules.m8_review.service import leg_descriptions, review_summary
 from app.query import snapshot
 from app.settings import PAIR_MS, PREVIEW, ROOT, ZONE
 
@@ -13,7 +14,7 @@ templates = Jinja2Templates(directory=ROOT / 'app' / 'templates')
 LOCAL = ZoneInfo(ZONE)
 MODULES = (
     ('intake', '闸机采信'), ('clock', '时钟偏移'), ('pairing', '双束配对'), ('direction', '方向与折返'),
-    ('transfer', '换乘去重'), ('balance', '客流勾稽'), ('report', '班报复算'),
+    ('transfer', '换乘去重'), ('balance', '客流勾稽'), ('review', '票号复核'), ('report', '班报复算'),
 )
 
 
@@ -37,9 +38,21 @@ def waterfall(data):
 def home(request: Request, run: str = '', notice: str = ''):
     data = (snapshot(request, run) if run else request.app.state.archive.latest()) or request.app.state.preview
     manifest = data['manifest']
+    is_preview = manifest['run_id'] == PREVIEW
+    review_groups = leg_descriptions(data)
+    review_notes, shift_comparison, base_totals = [], [], data['balance']['totals']
+    if not is_preview:
+        archive = request.app.state.archive
+        review_notes = archive.review_notes(manifest['run_id'])
+        shift_comparison = archive.shift_comparison(manifest['run_id'])
+        base_totals = archive.base_totals(manifest['run_id'])
     return templates.TemplateResponse(request, 'index.html', {
-        'data': data, 'manifest': manifest, 'preview': manifest['run_id'] == PREVIEW, 'modules': MODULES,
+        'data': data, 'manifest': manifest, 'preview': is_preview, 'modules': MODULES,
         'tracks': waterfall(data), 'totals': data['balance']['totals'],
         'stations': sorted({row['station'] for row in data['intake']}),
-        'notice': {'published': '班报已发布', 'reused': '已复用该批次'}.get(notice, ''),
+        'notice': {'published': '班报已发布', 'reused': '已复用该批次',
+                   'reviewed': '票号复核已确认并出新版班报', 'review_reused': '复核已存在，未重复调整',
+                   'review_failed': '复核确认失败，已恢复旧版班报'}.get(notice, ''),
+        'review_groups': review_groups, 'review_notes': review_notes, 'review_info': review_summary(data),
+        'shift_comparison': shift_comparison, 'base_totals': base_totals,
     })

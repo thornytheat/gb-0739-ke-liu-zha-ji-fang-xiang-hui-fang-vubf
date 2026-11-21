@@ -17,7 +17,6 @@ def source_balance(stats, issues, accepted):
 def reconcile(aligned, duplicates, unavailable, readings, transfers, sources):
     grouped = defaultdict(Counter)
     pulse_index = {row['pulse']: row for row in aligned}
-
     def counts(station, instant):
         return grouped[shift_of(instant), station]
 

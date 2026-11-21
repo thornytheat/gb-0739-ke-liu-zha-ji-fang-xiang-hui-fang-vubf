@@ -16,5 +16,7 @@ def report(request: Request, run_id: str, query: QueryRows = Depends()):
 @router.get('/{run_id}/export')
 def export(request: Request, run_id: str):
     archive = request.app.state.archive
-    contents = build(archive.read(run_id), archive.sources(run_id))
+    snapshot = archive.read(run_id)
+    notes = archive.review_notes(run_id) if snapshot.get('review') else None
+    contents = build(snapshot, archive.sources(run_id), notes)
     return Response(contents, media_type='application/zip', headers={'Content-Disposition': f'attachment; filename="shift-{run_id}.zip"'})

@@ -7,7 +7,9 @@
   <link rel="stylesheet" href="/static/theme.css">
   <link rel="stylesheet" href="/static/frame.css">
   <link rel="stylesheet" href="/static/tracks.css">
+  <link rel="stylesheet" href="/static/review.css">
   <script type="module" src="/static/replay.js"></script>
+  <script type="module" src="/static/review.js"></script>
 </head>
 <body data-run="{{ manifest.run_id }}">
   <div class="console">
@@ -42,6 +44,7 @@
           <div class="kpi"><span>脉冲差异</span><strong id="metric-gap">{{ totals.pulse_difference }}<small>次</small></strong></div>
         </div>
         {% include 'waterfall.html' %}
+        {% include 'review.html' %}
         {% include 'evidence.html' %}
       </main>
       <footer class="statusbar"><span class="signal pass">客流勾稽通过</span><span>隔离 {{ data.isolated | length }} 行</span><span>折返 {{ totals['return'] }} · 歧义 {{ totals.ambiguous }} · 孤脉冲 {{ totals.orphan_pulses }}</span><span class="footer-end"><code>{{ manifest.version }}</code> <a href="/docs">API</a></span></footer>

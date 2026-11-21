@@ -28,4 +28,8 @@ MESSAGES = {
     'PASS_EXPIRED': '进站时刻在票有效期外', 'NO_TICKET': '缺票号，保留独立进站',
     'NO_ELIGIBLE_EXIT': '没有可用的有向出站锚点', 'TRANSFER': '已关联跨站出站锚点',
     'RUN_NOT_FOUND': '未找到回放批次', 'UNKNOWN_VIEW': '证据视图不存在', 'BALANCE_FAILED': '客流勾稽失败',
+    'REVIEW_TARGET': '该票在本批没有两段可复核的同票换乘', 'REVIEW_ANCHOR': '指定保留的换乘锚点不属于该票换乘行程',
+    'REVIEW_PERIOD': '复核时段必须覆盖该票全部换乘行程', 'REVIEW_ACTIVE': '该票已有生效复核，重跑不重复调整',
+    'REVIEW_CONFLICT': '复核请求与已生效记录不一致', 'REVIEW_REASON': '同票说明不能为空',
+    'REVIEW_NOTE_FAILED': '复核确认勾稽失败，已恢复旧版班报', 'REVIEW_PREVIEW': '样例预览不接受复核，请先发布批次',
 }
